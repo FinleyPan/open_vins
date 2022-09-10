@@ -86,31 +86,31 @@ namespace ov_core {
  */
 inline Eigen::Matrix<double, 4, 1> rot_2_quat(const Eigen::Matrix<double, 3, 3> &rot) {
   Eigen::Matrix<double, 4, 1> q;
-  double T = rot.trace();
-  if ((rot(0, 0) >= T) && (rot(0, 0) >= rot(1, 1)) && (rot(0, 0) >= rot(2, 2))) {
+  double T = rot.trace(); /*T = 4 * q4 **2 - 1*/
+  if ((rot(0, 0) >= T) && (rot(0, 0) >= rot(1, 1)) && (rot(0, 0) >= rot(2, 2))) { /*max{|q1|,|q2|,|q3|,|q4|}=|q1|*/
     q(0) = sqrt((1 + (2 * rot(0, 0)) - T) / 4);
     q(1) = (1 / (4 * q(0))) * (rot(0, 1) + rot(1, 0));
     q(2) = (1 / (4 * q(0))) * (rot(0, 2) + rot(2, 0));
     q(3) = (1 / (4 * q(0))) * (rot(1, 2) - rot(2, 1));
-
-  } else if ((rot(1, 1) >= T) && (rot(1, 1) >= rot(0, 0)) && (rot(1, 1) >= rot(2, 2))) {
+    
+  } else if ((rot(1, 1) >= T) && (rot(1, 1) >= rot(0, 0)) && (rot(1, 1) >= rot(2, 2))) { /*max{|q1|,|q2|,|q3|,|q4|}=|q2|*/
     q(1) = sqrt((1 + (2 * rot(1, 1)) - T) / 4);
     q(0) = (1 / (4 * q(1))) * (rot(0, 1) + rot(1, 0));
     q(2) = (1 / (4 * q(1))) * (rot(1, 2) + rot(2, 1));
     q(3) = (1 / (4 * q(1))) * (rot(2, 0) - rot(0, 2));
-  } else if ((rot(2, 2) >= T) && (rot(2, 2) >= rot(0, 0)) && (rot(2, 2) >= rot(1, 1))) {
+  } else if ((rot(2, 2) >= T) && (rot(2, 2) >= rot(0, 0)) && (rot(2, 2) >= rot(1, 1))) { /*max{|q1|,|q2|,|q3|,|q4|}= |q3|*/
     q(2) = sqrt((1 + (2 * rot(2, 2)) - T) / 4);
     q(0) = (1 / (4 * q(2))) * (rot(0, 2) + rot(2, 0));
     q(1) = (1 / (4 * q(2))) * (rot(1, 2) + rot(2, 1));
     q(3) = (1 / (4 * q(2))) * (rot(0, 1) - rot(1, 0));
-  } else {
+  } else { /*max{|q1|,|q2|,|q3|,|q4|}=|q4|*/
     q(3) = sqrt((1 + T) / 4);
     q(0) = (1 / (4 * q(3))) * (rot(1, 2) - rot(2, 1));
     q(1) = (1 / (4 * q(3))) * (rot(2, 0) - rot(0, 2));
     q(2) = (1 / (4 * q(3))) * (rot(0, 1) - rot(1, 0));
   }
   if (q(3) < 0) {
-    q = -q;
+    q = -q; /*get the "shortest" rotation */
   }
   // normalize and return
   q = q / (q.norm());
